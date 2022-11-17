@@ -6,9 +6,11 @@ import 'package:flutter/services.dart';
 import 'package:game_controller/desktop_interface.dart';
 import 'package:game_controller/join_room.dart';
 import 'package:game_controller/mobile_interface.dart';
+import 'package:multi_window/multi_window.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
-Future<void> main() async {
+Future<void> main(List<String> args) async {
+  MultiWindow.init(args);
   WidgetsFlutterBinding.ensureInitialized();
   // set to landscape orientation
   await SystemChrome.setPreferredOrientations([
@@ -120,6 +122,33 @@ class HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    if (!Platform.isMacOS) {
+      return buildBody();
+    }
+    return PlatformMenuBar(menus: <MenuItem>[
+      PlatformMenu(
+        label: 'Flutter API Sample',
+        menus: <MenuItem>[
+          PlatformMenuItemGroup(
+            members: <MenuItem>[
+              PlatformMenuItem(
+                label: 'New Instance',
+                onSelected: () {
+                  MultiWindow.create('game_controller');
+                },
+              ),
+            ],
+          ),
+          if (PlatformProvidedMenuItem.hasMenu(
+              PlatformProvidedMenuItemType.quit))
+            const PlatformProvidedMenuItem(
+                type: PlatformProvidedMenuItemType.quit),
+        ],
+      ),
+    ], child: buildBody());
+  }
+
+  Widget buildBody() {
     //display controls when connected to room
     if (_channel == null) return Container();
     if (roomId.length == 5) {

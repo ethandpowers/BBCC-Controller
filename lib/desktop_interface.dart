@@ -50,21 +50,6 @@ class DesktopInterfaceState extends State<DesktopInterface> {
       autofocus: true,
       focusNode: FocusNode(),
       onKeyEvent: (event) {
-        // if (event.runtimeType == KeyUpEvent) {
-        //   widget.sendButtonRelease(event.logicalKey.keyLabel);
-        //   keysPressed.removeWhere(
-        //       (element) => element.key == event.logicalKey.keyLabel);
-        //   // re-notify for each key pressed after any key is released
-        //   keysPressed.every((element) => element.notified = false);
-        // } else {
-        //   // if key is not already pressed
-        //   if (!keysPressed
-        //       .any((element) => element.key == event.logicalKey.keyLabel)) {
-        //     keysPressed.add(
-        //         KeyOption(key: event.logicalKey.keyLabel, notified: false));
-        //   }
-        // }
-
         if (event.runtimeType == KeyUpEvent) {
           keysPressed.remove(event.logicalKey.keyLabel);
           widget.sendButtonRelease(event.logicalKey.keyLabel);
