@@ -44,23 +44,36 @@ class Home extends StatefulWidget {
 class HomeState extends State<Home> {
   static const sERVERuRI = 'ws://142.93.200.13:443';
 
-  WebSocketChannel _channel = WebSocketChannel.connect(Uri.parse(sERVERuRI));
+  WebSocketChannel? _channel;
 
   String roomId = "";
   double previousX = 0;
   double previousY = 0;
 
   void sendInput(String input) {
-    _channel.sink.add(jsonEncode({"type": "dispatch", "params": input}));
+    _channel?.sink.add('{"type": "dispatch", "params": $input}');
   }
 
   void sendButtonPress(String button) {
-    sendInput('{"button":"$button"}');
+    sendInput(jsonEncode(
+      {"type": "buttonPress", "button": button},
+    ));
+  }
+
+  void sendButtonRelease(String button) {
+    sendInput(jsonEncode(
+      {"type": "buttonRelease", "button": button},
+    ));
   }
 
   void sendJoyStickInput(double x, double y) {
     if ((previousX - x).abs() > 0.1 || (previousY - y).abs() > 0.1) {
-      sendInput(jsonEncode({"x": x, "y": y}));
+      sendInput(jsonEncode(
+        {
+          "type": "joystick",
+          "params": {"x": x, "y": y}
+        },
+      ));
       previousX = x;
       previousY = y;
     }
@@ -73,7 +86,7 @@ class HomeState extends State<Home> {
   }
 
   void leaveRoom() {
-    _channel.sink.add(jsonEncode({"type": "leave", "params": {}}));
+    _channel?.sink.add(jsonEncode({"type": "leave", "params": {}}));
     setState(() {
       roomId = "";
     });
@@ -90,7 +103,7 @@ class HomeState extends State<Home> {
       _channel = WebSocketChannel.connect(Uri.parse(sERVERuRI));
     });
     // Websocket listener
-    _channel.stream.listen(
+    _channel?.stream.listen(
       (event) {
         var obj = jsonDecode(event);
         switch (obj["message"]) {
@@ -108,16 +121,18 @@ class HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     //display controls when connected to room
+    if (_channel == null) return Container();
     if (roomId.length == 5) {
       if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
         return DesktopInterface(
-          channel: _channel,
+          channel: _channel!,
           sendButtonPress: sendButtonPress,
+          sendButtonRelease: sendButtonRelease,
           leaveRoom: leaveRoom,
         );
       } else {
         return MobileInterface(
-          channel: _channel,
+          channel: _channel!,
           sendButtonPress: sendButtonPress,
           sendJoystickInput: sendJoyStickInput,
           sendZeroJoystickInput: sendZeroJoyStickInput,
@@ -126,7 +141,7 @@ class HomeState extends State<Home> {
       }
     } else {
       //join room form
-      return JoinRoom(channel: _channel);
+      return JoinRoom(channel: _channel!);
     }
   }
 }

@@ -34,6 +34,9 @@ class JoinRoomState extends State<JoinRoom> {
                 ),
               ),
             ),
+            const SizedBox(
+              height: 20,
+            ),
             ElevatedButton(
               onPressed: () {
                 //verify valid form value
