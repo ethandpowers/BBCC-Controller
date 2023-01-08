@@ -44,7 +44,8 @@ class Home extends StatefulWidget {
 }
 
 class HomeState extends State<Home> {
-  static const sERVERuRI = 'ws://142.93.200.13:443';
+  // The server uri uses the websocket protocol as shown below.  Use your server ip address and port number.
+  static const sERVERuRI = 'ws://xxx.xx.xxx.xx:443';
 
   WebSocketChannel? _channel;
 
